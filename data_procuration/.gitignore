@@ -1,0 +1,13 @@
+# exclude everything
+data/img/*
+data/img_mod/*
+data/meta/*
+
+conf/current_ids
+conf/ids
+conf/list
+
+# exception to the rule
+!data/img/.gitkeep
+!data/img_mod/.gitkeep
+!data/meta/.gitkeep

@@ -1,0 +1,11 @@
+-----------------------------------------------------
+# This folder (conf) is for book keeping purposes
+-----------------------------------------------------
+## current_ids:
+  temp ids that are being downloaded in the current run of download_data.sh
+
+## list:
+  temp list of json items containing meta data which is stored during exec of get_meta.py
+
+## ids:
+  ongoing list of ids in the format (file_name,_id)

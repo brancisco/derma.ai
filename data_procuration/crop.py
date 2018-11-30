@@ -72,7 +72,6 @@ def main():
     y = max(0, y)
     x = max(0, x)
 
-    print('{}: w,h({}, {}), x,y({}, {})'.format(filenames[i], w, h, x, y))
     img = img[y:y+h, x:x+w]
     img_orig = cv2.imread(os.path.join(dir_name_orig, filenames[i][:-3]+'jpg'))
     img_orig = img_orig[y:y+h, x:x+w]

@@ -17,15 +17,10 @@ def main():
     filename = os.path.join(dir_name_orig, filenames[i])
     img = cv2.imread(filename)
     img_orig = cv2.imread(filename) 
-
-    # diff numbers
-    num1, num2 = 0, 0
-    while(num1 == num2):
-      num1, num2 = random.randint(1, 360), random.randint(1, 360)
     
     # rotation
     num_rows, num_cols = img.shape[:2]
-    rotation_matrix1, rotation_matrix2 = cv2.getRotationMatrix2D((num_cols/2, num_rows/2), num1, 1), cv2.getRotationMatrix2D((num_cols/2, num_rows/2), num2, 1)
+    rotation_matrix1, rotation_matrix2 = cv2.getRotationMatrix2D((num_cols/2, num_rows/2), 180, 1), cv2.getRotationMatrix2D((num_cols/2, num_rows/2), 270, 1)
     img_rotation1, img_rotation2 = cv2.warpAffine(img, rotation_matrix1, (num_cols, num_rows)), cv2.warpAffine(img, rotation_matrix2, (num_cols, num_rows))
 
     # file names

@@ -2,12 +2,11 @@
 data/img/*
 data/img_mod/*
 data/meta/*
+data/lst/*
 
 conf/current_ids
 conf/ids
 conf/list
 
 # exception to the rule
-!data/img/.gitkeep
-!data/img_mod/.gitkeep
-!data/meta/.gitkeep
+*.gitkeep

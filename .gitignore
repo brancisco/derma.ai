@@ -4,3 +4,7 @@ __pycache__/
 *.jpg
 *.ipynb_checkpoints
 *aws.conf
+
+aws/.progress/*
+
+!*.gitkeep

@@ -12,8 +12,10 @@ def main():
   filenames = [fn for fn in os.listdir(dir_name_orig) if fn[-3:] == 'jpg']
 
   # print(filenames)
+
+  lim = len(filenames)
   
-  for i in range(len(filenames)):
+  for i in range(lim):
     filename = os.path.join(dir_name_orig, filenames[i])
     img = cv2.imread(filename)
     img_orig = cv2.imread(filename) 
@@ -36,11 +38,6 @@ def main():
     cv2.imwrite(os.path.join(dir_out, filenamea), img_orig)
     cv2.imwrite(os.path.join(dir_out, filenameb), img_rotation1)
     cv2.imwrite(os.path.join(dir_out, filenamec), img_rotation2)
-
-
-
-
-
 
 if __name__ == '__main__':
   main()

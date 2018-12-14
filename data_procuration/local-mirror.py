@@ -10,7 +10,9 @@ def main():
 	dir_out = './data/img_mir'
 	filenames = [fn for fn in os.listdir(dir_name_orig) if fn[-3:] == 'jpg']
 	
-	for i in range(len(filenames)):
+	lim = len(filenames)
+
+	for i in range(lim):
 		filename = os.path.join(dir_name_orig, filenames[i])
 		img = cv2.imread(filename)
 		#mirror image across y axis

@@ -28,6 +28,22 @@ def dict_val_transform(d):
     d[k] = str(d[k])
   return d
 
+def retrieve_objects(client, bucket, prefix):
+  kwargs = {
+    'Bucket': bucket,
+    'Prefix': prefix
+  }
+  keys = []
+  while 1:
+    res = client.list_objects_v2(**kwargs)
+    keys += list(map(lambda x: x['Key'], res['Contents']))
+    if 'NextContinuationToken' not in res: break
+    kwargs['ContinuationToken'] = res['NextContinuationToken']
+
+  return keys
+
+
+
 class_map = {
   'benign': '0',
   'malignant': '1',
@@ -97,10 +113,24 @@ def main():
   with open(join(data_dir, 'lst/validation.lst'), 'w') as v_lst_file:
     pass
 
+  # get list of keys that are on s3 already
+  try:
+    keys = retrieve_objects(s3, bucket_name, join(folder_name, 'train'))
+  except:
+    keys = []
+
+  try:
+    keys += retrieve_objects(s3, bucket_name, join(folder_name, 'validation'))
+  except:
+    pass
+
+  keys = list(map(lambda x: x.replace(join(folder_name, 'train/'), ''), keys))
+  keys = list(map(lambda x: x.replace(join(folder_name, 'validation/'), ''), keys))
+  
   # get a list of files in the 
   files = [ f for f in\
    listdir(join(data_dir, img_dir))\
-   if isfile(join(data_dir, img_dir, f)) and f != '.gitkeep']
+   if isfile(join(data_dir, img_dir, f)) and f not in keys and f != '.gitkeep']
 
   # shuffle to ensure data from different datasets are in train and validation
   np.random.shuffle(files)
@@ -109,41 +139,32 @@ def main():
   if 'RESTRICT' in settings and settings['RESTRICT'] != 0:
     files = files[:int(settings['RESTRICT'])]
 
-  n_files = len(files)
+  n_files = len(files) + len(keys)
 
-  f_range = list(range(n_files))
-  np.random.shuffle(f_range)
-
-  files = list(zip(f_range, files))
   n_in_train = int(n_files*(1 - test_split))
   start_time = timer()
   # iterate through local files
-  for i, f in zip(range(len(files)), files):
+  for i, f in zip(range(len(keys), n_files), files):
     # open local dir containing desired images
-    with open(join(data_dir, img_dir, f[1]), 'rb') as data:
+    with open(join(data_dir, img_dir, f), 'rb') as data:
       # open dir containing corresponding metadata
-      with open(join(data_dir, meta_dir, f[1][:-3]+'json'), 'r') as meta:
+      with open(join(data_dir, meta_dir, f[:-3]+'json'), 'r') as meta:
         meta = json.load(meta)
         if i < n_in_train:
           train_or_validation = 'train'
         else:
           train_or_validation = 'validation'
         # upload the image with metadata attached
-        loading(i/n_files, f[1], time=(timer() - start_time))
+        loading(i/n_files, f, time=(timer() - start_time))
         if 'benign_malignant' not in meta['meta']['clinical'] or \
          not (str(meta['meta']['clinical']['benign_malignant']).lower() == 'benign' or \
          str(meta['meta']['clinical']['benign_malignant']).lower() == 'malignant'):
           continue
-        # s3_key = '{}/{}/{}/{}'.format(
-        #                     folder_name,
-        #                     train_or_validation,
-        #                     meta['meta']['clinical']['benign_malignant'],
-        #                     f[1]
-        # )
+
         s3_key = '{}/{}/{}'.format(
                             folder_name,
                             train_or_validation,
-                            f[1]
+                            f
         )
         s3.upload_fileobj(data,
                           bucket_name,
@@ -152,19 +173,6 @@ def main():
                             'Metadata': dict_val_transform(meta['meta']['clinical'])
                           }
         )
-        if train_or_validation == 'train':
-          with open(join(data_dir, 'lst/train.lst'), 'a') as t_lst_file:
-            t_lst_file.write(str(f[0]) + '\t' +\
-             class_map[meta['meta']['clinical']['benign_malignant']] + '\t' +\
-             f[1] + '\n')
-        else:
-          with open(join(data_dir, 'lst/validation.lst'), 'a') as v_lst_file:
-            v_lst_file.write(str(f[0]) + '\t' +\
-             class_map[meta['meta']['clinical']['benign_malignant']] + '\t' +\
-             f[1] + '\n')
-
-  s3.upload_file(join(data_dir, 'lst/train.lst'), bucket_name, join(folder_name, 'train.lst'))
-  s3.upload_file(join(data_dir, 'lst/validation.lst'), bucket_name, join(folder_name, 'validation.lst'))
 
   print('\n')
   print('Time For Execution: ', str(datetime.timedelta(seconds=timer() - start_time)))

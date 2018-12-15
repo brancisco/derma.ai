@@ -11,7 +11,7 @@ chunk="20000"
 curl -X GET --header 'Accept: application/json' "https://isic-archive.com/api/v1/image?limit=$(echo $chunk)&offset=$(echo $offset)&sort=name&sortdir=1&detail=true" -o './conf/list'
 
 # get ids from the json returned from curl
-python3 ./get_meta.py > ./conf/current_ids
+python3 ./get-meta-helper.py > ./conf/current_ids
 
 for name_id in $(cat ./conf/current_ids); do
   img_name="$(echo $name_id | awk '{split($1, a, ","); print a[1]}')"

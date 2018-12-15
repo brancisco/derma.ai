@@ -13,9 +13,6 @@ def main():
       # store the metadata with proper name
       with open('./data/meta/{}.json'.format(item['name']), 'w') as ofile:
         json.dump(item, ofile)
-        ofile.close()
-    ifile.close()
-
 
 if __name__ == '__main__':
   main()

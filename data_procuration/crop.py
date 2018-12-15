@@ -9,7 +9,7 @@ def main():
   dir_name = './data/img_mask'
   dir_name_orig = './data/img'
   dir_out = './data/img_crop'
-  filenames = [fn for fn in os.listdir(dir_name) if fn[-3:] == 'png']
+  filenames = [fn for fn in os.listdir(dir_name) if fn[-3:] == 'jpg']
 
   for i in range(len(filenames)):
     filename = os.path.join(dir_name, filenames[i])
